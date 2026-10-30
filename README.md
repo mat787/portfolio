@@ -3,21 +3,26 @@
 Nowoczesne, responsywne portfolio w języku polskim (Vite + czysty JavaScript, bez frameworka).
 Publikowane na GitHub Pages: **https://mat787.github.io/portfolio/**
 
+## Styl
+
+Wizualnie: **tactical HUD / FPS** — ciemne tło `#0B0D0F`, jeden akcent `#C6FF00`, czerwień `#FF3B5C` tylko dla trafień i alertów.
+Nagłówki: Rajdhani, etykiety HUD: JetBrains Mono, tekst: Inter (wszystko hostowane lokalnie). Jasny motyw to „tryb treningowy".
+Humor „brainrot" jest wyłącznie warstwą dekoracyjną (pasek na górze, tooltipy, easter eggi, 404) — opisy projektów i doświadczenia są rzeczowe.
+Wszystko jest narysowane w SVG/CSS lub syntezowane w przeglądarce — żadnych cudzych sprite'ów, dźwięków ani postaci.
+
 ## Co zawiera
 
-- płynna nawigacja po sekcjach, podświetlanie aktywnej sekcji, pasek postępu przewijania,
-- animowane pojawianie się treści (wyłączane przy `prefers-reduced-motion`),
-- filtrowane karty projektów + okno ze szczegółami (galeria zrzutów, stos technologiczny, linki; link bezpośredni, np. `#projekt-jobradar`),
-- przegląd umiejętności (kliknięcie technologii filtruje projekty),
-- oś czasu: doświadczenie, edukacja, działalność (z filtrem),
-- sekcja kontaktu (kopiowanie e-maila, formularz otwierający program pocztowy),
-- motyw jasny / ciemny (domyślnie wg ustawień systemu, wybór jest zapamiętywany),
-- dostępność: skip-link, widoczny focus, semantyczny HTML, obsługa klawiatury, natywny `<dialog>`,
-- czcionki hostowane lokalnie (bez zewnętrznych CDN), obrazy w WebP.
+- sekcje jako „ekrany gry": wybór agenta (hero), briefing (o mnie), loadout (projekty z rzadkością), scoreboard (umiejętności), kill feed (doświadczenie), „zaproś do party" (kontakt),
+- filtrowane karty projektów + okno ze szczegółami (galeria, stos technologiczny, linki; link bezpośredni, np. `#projekt-mbewu-ai`),
+- klikalne umiejętności (filtrują projekty), filtr doświadczenia, formularz otwierający program pocztowy, motyw jasny/ciemny (zapamiętywany),
+- kursor-celownik (tylko `pointer: fine`), dźwięk trafienia (Web Audio, tylko po interakcji, przycisk wyciszenia w nawigacji), hitmarker po kliknięciu,
+- pasek „live" z przewijanymi tekstami, pociąg pixel-art z wykresem liniowym przelatujący co 20–60 s (kliknięcie = „+1000 aura"),
+- easter eggi: kod Konami (tryb ACE), 5 kliknięć w logo (aim trainer 30 s), wpisanie `sus`, ukryty komunikat w konsoli, strona 404,
+- `prefers-reduced-motion` wyłącza pociąg, marquee, drgania i glitch (zostają wersje statyczne); responsywność od 375 px; dostępność (skip-link, focus, kontrast AA, natywny `<dialog>`).
 
 ## Jak edytować treść
 
-**Cała treść jest w jednym pliku: [`src/data/content.js`](./src/data/content.js)** — opis, statystyki,
+**Cała treść jest w jednym pliku: [`src/data/content.js`](./src/data/content.js)** — opis, rrola, projekty,
 umiejętności, oś czasu, dane kontaktowe i projekty. Na początku pliku jest krótka ściągawka.
 
 | Chcę… | Zmieniam… |
@@ -31,6 +36,9 @@ umiejętności, oś czasu, dane kontaktowe i projekty. Na początku pliku jest k
 | dodać CV do pobrania | wrzucić PDF do `public/cv.pdf` i ustawić `profile.cvUrl = "cv.pdf"` |
 | dodać zdjęcie | wrzucić plik do `public/` i ustawić `profile.photo` |
 | dodać wpis na osi czasu | `timeline` (typy: `work`, `education`, `community`) |
+| zmienić rzadkość karty projektu | `projects[].rarity` (`mythic`, `legendary`, `epic`, `rare`, `common`) i `flavor` (krótki podpis na karcie) |
+| zmienić teksty w pasku „live" | `marquee` |
+| zmienić „wynik Matyldy" w aim trainerze i komentarze | `easter.aimBenchmark`, `easter.aimComments` (wartość startowa jest orientacyjna — wpisz swój rekord) |
 
 Numer telefonu celowo nie jest publikowany na stronie.
 
@@ -58,7 +66,7 @@ więc działają w każdej konfiguracji.
 ## Publikacja (GitHub Pages)
 
 Workflow [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml) buduje i wdraża
-stronę po każdym pushu na `main`. Jednorazowo w repozytorium: **Settings → Pages → Build and deployment →
+stronę po każdym pushu na `main` (w paczce jest też `404.html`). Jednorazowo w repozytorium: **Settings → Pages → Build and deployment →
 Source: GitHub Actions**.
 
 ## Struktura
@@ -67,6 +75,8 @@ Source: GitHub Actions**.
 index.html                 szkielet strony
 src/data/content.js        CAŁA TREŚĆ (edytuj tutaj)
 src/js/                    renderowanie sekcji, projekty + modal, motyw/nawigacja/animacje
-src/styles/main.css        style (tokeny kolorów na górze pliku)
+src/js/                    …w tym cursor.js, audio.js, train.js, eggs.js, aim.js (warstwa interakcji)
+src/styles/                base.css (tokeny, ramki HUD), layout.css, cards.css, fx.css
+404.html                   strona błędu (budowana razem ze stroną główną)
 public/                    statyczne pliki: favicon, zrzuty ekranu projektów
 ```

@@ -1,3 +1,4 @@
+import { resolve } from "node:path";
 import { defineConfig } from "vite";
 
 // Strona działa pod adresem https://mat787.github.io/portfolio/ — stąd domyślna baza.
@@ -7,5 +8,11 @@ export default defineConfig({
   build: {
     target: "es2020",
     assetsInlineLimit: 0,
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, "index.html"),
+        notFound: resolve(import.meta.dirname, "404.html"),
+      },
+    },
   },
 });
