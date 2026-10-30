@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 480" role="img" aria-labelledby="t d" font-family="Inter, system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title id="t">Schemat przepływu danych w JobRadar</title>
+  <desc id="d">Oferty pracy trafiają do skrapera, następnie do bazy PostgreSQL, gdzie powstają embeddingi w pgvector. CV kandydata jest dopasowywane do ofert, a lokalny model językowy tworzy podsumowanie.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1b2d"/>
+      <stop offset="1" stop-color="#17294a"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#7aa2ff"/>
+    </marker>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity=".05"/>
+    </pattern>
+  </defs>
+  <rect width="960" height="480" fill="url(#bg)"/>
+  <rect width="960" height="480" fill="url(#grid)"/>
+
+  <g fill="none" stroke="#7aa2ff" stroke-width="2" marker-end="url(#arrow)">
+    <path d="M232 160H300"/>
+    <path d="M492 160H560"/>
+    <path d="M652 208V272"/>
+    <path d="M560 336H492"/>
+    <path d="M300 336H232"/>
+  </g>
+
+  <g>
+    <rect x="48" y="112" width="184" height="96" rx="14" fill="#1b2f55" stroke="#7aa2ff" stroke-opacity=".5"/>
+    <text x="140" y="152" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">Oferty pracy</text>
+    <text x="140" y="178" text-anchor="middle" fill="#9db4e6" font-size="15">źródła online</text>
+
+    <rect x="300" y="112" width="192" height="96" rx="14" fill="#1b2f55" stroke="#7aa2ff" stroke-opacity=".5"/>
+    <text x="396" y="152" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">Scraper</text>
+    <text x="396" y="178" text-anchor="middle" fill="#9db4e6" font-size="15">Python · sekcje ofert</text>
+
+    <rect x="560" y="112" width="184" height="96" rx="14" fill="#1b2f55" stroke="#7aa2ff" stroke-opacity=".5"/>
+    <text x="652" y="152" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">PostgreSQL</text>
+    <text x="652" y="178" text-anchor="middle" fill="#9db4e6" font-size="15">migracje · upsert</text>
+
+    <rect x="560" y="272" width="184" height="128" rx="14" fill="#1b2f55" stroke="#5eead4" stroke-opacity=".6"/>
+    <text x="652" y="316" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">pgvector</text>
+    <text x="652" y="342" text-anchor="middle" fill="#9db4e6" font-size="15">embeddingi ofert</text>
+    <text x="652" y="366" text-anchor="middle" fill="#9db4e6" font-size="15">deduplikacja</text>
+
+    <rect x="300" y="288" width="192" height="96" rx="14" fill="#1b2f55" stroke="#5eead4" stroke-opacity=".6"/>
+    <text x="396" y="328" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">Dopasowanie</text>
+    <text x="396" y="354" text-anchor="middle" fill="#9db4e6" font-size="15">CV ↔ oferty</text>
+
+    <rect x="48" y="288" width="184" height="96" rx="14" fill="#1b2f55" stroke="#5eead4" stroke-opacity=".6"/>
+    <text x="140" y="328" text-anchor="middle" fill="#e8eefc" font-size="20" font-weight="600">Lokalny LLM</text>
+    <text x="140" y="354" text-anchor="middle" fill="#9db4e6" font-size="15">bez kosztów API</text>
+  </g>
+
+  <text x="48" y="64" fill="#e8eefc" font-size="26" font-weight="700">JobRadar — przepływ danych</text>
+  <text x="48" y="90" fill="#9db4e6" font-size="15">Schemat koncepcyjny · etapy w turkusie są w trakcie rozwoju</text>
+  <text x="48" y="448" fill="#6f87b8" font-size="13">Docker · FastAPI · Python</text>
+</svg>
