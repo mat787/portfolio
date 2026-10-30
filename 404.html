@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="pl" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 — Matylda Drapich</title>
+    <meta name="robots" content="noindex" />
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <style>
+      html[data-theme="dark"] body {
+        background: #0b0d0f;
+      }
+    </style>
+    <script>
+      (function () {
+        try {
+          document.documentElement.setAttribute("data-theme", localStorage.getItem("theme") === "light" ? "light" : "dark");
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <main class="nf" id="main">
+      <p class="nf-tag">[404] // BŁĄD MAPY</p>
+      <h1 class="nf-title">Pudło.</h1>
+      <p class="nf-lead">Tego adresu nie ma na mapie. Wygląda na to, że wypadłeś poza strefę — lowkey cooked.</p>
+      <a class="btn btn-primary" href="%BASE_URL%">Wróć na spawn</a>
+    </main>
+    <script type="module" src="/src/notfound.js"></script>
+  </body>
+</html>

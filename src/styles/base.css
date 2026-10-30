@@ -1,0 +1,556 @@
+/* ==========================================================
+   Tactical HUD — tokeny, typografia, komponenty bazowe
+   Kolory: tło #0B0D0F, akcent #C6FF00, alert/trafienie #FF3B5C. Nic więcej.
+   ========================================================== */
+
+:root {
+  --font-display: "Rajdhani", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --live-h: 30px;
+  --nav-h: 60px;
+  --header-h: calc(var(--live-h) + var(--nav-h));
+  --container: 1180px;
+  --ease: cubic-bezier(0.2, 0.9, 0.25, 1);
+
+  --cut: 12px;
+  --clip: polygon(
+    var(--cut) 0,
+    100% 0,
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    0 100%,
+    0 var(--cut)
+  );
+  --clip-in: polygon(
+    calc(var(--cut) - 1px) 0,
+    100% 0,
+    100% calc(100% - var(--cut) + 1px),
+    calc(100% - var(--cut) + 1px) 100%,
+    0 100%,
+    0 calc(var(--cut) - 1px)
+  );
+
+  --accent: #c6ff00;
+  --alert: #ff3b5c;
+  --on-accent: #0b0d0f;
+
+  /* tryb dzienny/nocny ustawiane niżej */
+  --bg: #0b0d0f;
+  --bg-2: #0f1215;
+  --surface: #12161a;
+  --surface-2: #181d22;
+  --line: #262d33;
+  --line-strong: #3d4851;
+  --text: #e9edf0;
+  --muted: #8e989f;
+  --accent-ink: #c6ff00;
+  --alert-ink: #ff3b5c;
+  --primary-line: #c6ff00;
+  --grid: rgba(198, 255, 0, 0.05);
+  --scan: rgba(255, 255, 255, 0.028);
+  --overlay: rgba(4, 5, 6, 0.82);
+  color-scheme: dark;
+}
+
+/* „Tryb treningowy" — jasny szary + ten sam akcent */
+:root[data-theme="light"] {
+  --bg: #e4e8ea;
+  --bg-2: #dce1e4;
+  --surface: #f3f5f6;
+  --surface-2: #e9edef;
+  --line: #c1c9ce;
+  --line-strong: #7f8b93;
+  --text: #0b0d0f;
+  --muted: #47515a;
+  --accent-ink: #456000;
+  --alert-ink: #c4002f;
+  --primary-line: #0b0d0f;
+  --grid: rgba(11, 13, 15, 0.055);
+  --scan: rgba(0, 0, 0, 0.03);
+  --overlay: rgba(228, 232, 234, 0.86);
+  color-scheme: light;
+}
+
+/* ---------- Reset ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 16px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* delikatne scanlines na całej stronie — bardzo niska opacity */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, var(--scan) 0 1px, transparent 1px 3px);
+}
+
+html.modal-open,
+html.menu-open {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+p,
+ul,
+ol,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+main {
+  overflow-x: clip;
+}
+
+main:focus {
+  outline: none;
+}
+
+.container {
+  width: min(100% - 40px, var(--container));
+  margin-inline: auto;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 300;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: none;
+}
+
+.noscript {
+  padding: 24px;
+  text-align: center;
+}
+
+/* ---------- Typografia ---------- */
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+h2 {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+}
+
+h3 {
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.hud-label,
+.sec-tag {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.sec-tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--accent-ink);
+}
+
+.sec-tag b {
+  font-weight: 700;
+}
+
+.sec-tag::after {
+  content: "";
+  flex: 1;
+  max-width: 220px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line-strong), transparent);
+}
+
+.lead {
+  font-size: 1.1rem;
+  color: var(--muted);
+  max-width: 56ch;
+}
+
+/* ---------- Ikony ---------- */
+
+.icon {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  fill: currentColor;
+}
+
+.icon-stroke,
+.icon-btn .icon {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Ramka HUD z ściętymi rogami ---------- */
+
+.frame {
+  position: relative;
+  isolation: isolate;
+  background: var(--frame-line, var(--line));
+  clip-path: var(--clip);
+  transition: background-color 0.2s;
+}
+
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--frame-fill, var(--surface));
+  clip-path: var(--clip-in);
+}
+
+/* ---------- Przyciski ---------- */
+
+.btn {
+  --cut: 8px;
+  --btn-line: var(--line-strong);
+  --btn-fill: var(--surface);
+  --btn-color: var(--text);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  background: var(--btn-line);
+  clip-path: var(--clip);
+  color: var(--btn-color);
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s var(--ease), filter 0.15s;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--btn-fill);
+  clip-path: var(--clip-in);
+  transition: background-color 0.15s;
+}
+
+.btn:hover {
+  --btn-line: var(--accent-ink);
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn:focus-visible {
+  clip-path: none;
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 3px;
+}
+
+.btn-primary {
+  --btn-line: var(--primary-line);
+  --btn-fill: var(--accent);
+  --btn-color: var(--on-accent);
+}
+
+.btn-primary:hover {
+  --btn-line: var(--primary-line);
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  --btn-line: transparent;
+  --btn-fill: transparent;
+}
+
+.btn-ghost:hover {
+  --btn-line: var(--line-strong);
+}
+
+.btn-sm {
+  --cut: 6px;
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 0.98rem;
+  gap: 8px;
+}
+
+.btn-sm .icon {
+  width: 17px;
+  height: 17px;
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-disabled {
+  --btn-line: var(--line);
+  --btn-fill: transparent;
+  --btn-color: var(--muted);
+  cursor: not-allowed;
+  font-weight: 600;
+}
+
+.btn-disabled:hover {
+  --btn-line: var(--line);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text);
+  transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+}
+
+.icon-btn:hover {
+  border-color: var(--accent-ink);
+  color: var(--accent-ink);
+}
+
+.link-btn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- Chipy / tagi / rzadkość ---------- */
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 9px;
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.chip-more {
+  color: var(--muted);
+  border-style: dashed;
+}
+
+.rarity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  cursor: help;
+}
+
+.rarity-mythic {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.rarity-legendary {
+  color: var(--accent-ink);
+}
+
+.rarity-epic {
+  color: var(--text);
+  border-style: dashed;
+}
+
+.rarity-rare {
+  color: var(--muted);
+}
+
+.rarity-common {
+  color: var(--muted);
+  border-color: var(--line);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--accent-ink);
+}
+
+.status-in-progress::before {
+  background: var(--alert-ink);
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  z-index: 300;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.2s, transform 0.2s var(--ease);
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
