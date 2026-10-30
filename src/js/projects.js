@@ -1,8 +1,9 @@
 import { projectCategories, projects as allProjects } from "../data/content.js";
 import { $, $$, asset, esc, icons, prefersReducedMotion } from "./utils.js";
+import { emptyFilterText } from "./sections.js";
 
 const projects = allProjects.filter((project) => !project.hidden);
-const statusLabels = { done: "Ukończony", "in-progress": "W trakcie rozwoju" };
+const statusLabels = { done: "Ukończony", "in-progress": "W trakcie" };
 const categoryLabel = (id) => projectCategories.find((category) => category.id === id)?.label ?? id;
 
 const initials = (title) =>
@@ -10,7 +11,7 @@ const initials = (title) =>
     .split(/\s+/)
     .map((word) => word[0])
     .join("")
-    .slice(0, 2)
+    .slice(0, 3)
     .toUpperCase();
 
 const state = { category: "all", tech: null };
@@ -21,13 +22,17 @@ const matches = (project) =>
   (state.category === "all" || project.categories.includes(state.category)) &&
   (!state.tech || hasTech(project, state.tech));
 
+const fallbackCover = (project, extraClass = "") =>
+  `<div class="cover-fallback ${extraClass}" aria-hidden="true"><span>${esc(project.coverLabel ?? initials(project.title))}</span><small>${esc(project.coverNote ?? project.tech.slice(0, 3).join(" · "))}</small></div>`;
+
 function cover(project) {
   const image = project.images?.[0];
-  if (image) {
-    return `<img src="${esc(asset(image.src))}" alt="" loading="lazy" decoding="async" />`;
-  }
-  return `<div class="cover-fallback" aria-hidden="true"><span>${esc(initials(project.title))}</span><small>${esc(project.tech.slice(0, 3).join(" · "))}</small></div>`;
+  if (image) return `<img src="${esc(asset(image.src))}" alt="" loading="lazy" decoding="async" />`;
+  return fallbackCover(project);
 }
+
+const rarityBadge = (project) =>
+  `<span class="rarity rarity-${esc(project.rarity ?? "common")}" title="${esc(project.flavor ?? "")}">${esc(project.rarity ?? "common")}</span>`;
 
 function linkButtons(project, { size = "" } = {}) {
   const { repo, demo } = project.links ?? {};
@@ -35,8 +40,8 @@ function linkButtons(project, { size = "" } = {}) {
   return `
     ${
       repo
-        ? `<a class="${cls} btn-secondary" href="${esc(repo)}" target="_blank" rel="noopener noreferrer">${icons.github} Kod na GitHubie</a>`
-        : `<span class="${cls} btn-disabled" aria-disabled="true">Repozytorium wkrótce</span>`
+        ? `<a class="${cls}" href="${esc(repo)}" target="_blank" rel="noopener noreferrer">${icons.github} Kod</a>`
+        : `<span class="${cls} btn-disabled" aria-disabled="true">Repo wkrótce</span>`
     }
     ${
       demo
@@ -48,11 +53,17 @@ function linkButtons(project, { size = "" } = {}) {
 
 function cardMarkup(project, index) {
   return `
-    <article class="project-card" data-id="${esc(project.id)}" data-reveal style="--i:${index % 3}">
-      <div class="project-cover">${cover(project)}</div>
+    <article class="project-card frame ${project.featured ? "is-featured" : ""}" data-id="${esc(project.id)}" data-rarity="${esc(project.rarity ?? "common")}" data-reveal style="--i:${index % 2}">
+      <div class="project-cover">
+        ${cover(project)}
+        <div class="cover-ui">
+          <span class="slot-tag">Slot ${String(projects.indexOf(project) + 1).padStart(2, "0")}</span>
+          ${rarityBadge(project)}
+        </div>
+      </div>
       <div class="project-body">
         <div class="project-meta">
-          <span class="badge badge-${project.status}">${statusLabels[project.status] ?? ""}</span>
+          <span class="status status-${project.status}">${statusLabels[project.status] ?? ""}</span>
           <span class="project-year">${esc(project.year)}</span>
         </div>
         <h3 class="project-title">
@@ -60,12 +71,16 @@ function cardMarkup(project, index) {
         </h3>
         <p class="project-subtitle">${esc(project.subtitle)}</p>
         <p class="project-summary">${esc(project.summary)}</p>
-        <ul class="chip-list chip-list-sm" aria-label="Technologie">
+        <ul class="chip-list" aria-label="Technologie">
           ${project.tech
-            .slice(0, 5)
+            .slice(0, project.featured ? 6 : 5)
             .map((tech) => `<li><span class="chip">${esc(tech)}</span></li>`)
             .join("")}
-          ${project.tech.length > 5 ? `<li><span class="chip chip-more">+${project.tech.length - 5}</span></li>` : ""}
+          ${
+            project.tech.length > (project.featured ? 6 : 5)
+              ? `<li><span class="chip chip-more">+${project.tech.length - (project.featured ? 6 : 5)}</span></li>`
+              : ""
+          }
         </ul>
         <div class="project-footer">
           <span class="project-more" aria-hidden="true">Szczegóły ${icons.arrowRight}</span>
@@ -88,7 +103,7 @@ function renderFilters() {
       .join("")}
     ${
       state.tech
-        ? `<button type="button" class="filter-chip filter-tech" data-clear-tech aria-label="Usuń filtr technologii ${esc(state.tech)}">Technologia: ${esc(state.tech)} ${icons.close}</button>`
+        ? `<button type="button" class="filter-chip filter-tech" data-clear-tech aria-label="Usuń filtr technologii ${esc(state.tech)}">Skill: ${esc(state.tech)} ${icons.close}</button>`
         : ""
     }
   `;
@@ -101,7 +116,7 @@ function renderGrid({ animate = true } = {}) {
 
   grid.innerHTML = visible.length
     ? visible.map(cardMarkup).join("")
-    : `<p class="empty-state">Brak projektów dla wybranych filtrów. <button type="button" class="link-btn" data-reset-filters>Wyczyść filtry</button></p>`;
+    : `<div class="empty-state"><strong>${esc(emptyFilterText)}</strong>Brak projektów dla wybranych filtrów. <button type="button" class="link-btn" data-reset-filters>Wyczyść filtry</button></div>`;
 
   status.textContent = `Wyświetlono ${visible.length} z ${projects.length} projektów`;
 
@@ -131,7 +146,7 @@ let opener = null;
 function galleryMarkup(project) {
   const images = project.images ?? [];
   if (!images.length) {
-    return `<div class="modal-gallery"><div class="modal-stage cover-fallback" aria-hidden="true"><span>${esc(initials(project.title))}</span><small>${esc(project.tech.slice(0, 3).join(" · "))}</small></div></div>`;
+    return `<div class="modal-gallery">${fallbackCover(project, "modal-stage")}</div>`;
   }
   return `
     <div class="modal-gallery" data-gallery>
@@ -164,38 +179,43 @@ function modalMarkup(project) {
   return `
     <div class="modal-top">
       <div class="project-meta">
-        <span class="badge badge-${project.status}">${statusLabels[project.status] ?? ""}</span>
+        ${rarityBadge(project)}
+        <span class="status status-${project.status}">${statusLabels[project.status] ?? ""}</span>
         <span class="project-year">${esc(project.year)}</span>
-        ${project.categories.map((id) => `<span class="badge badge-muted">${esc(categoryLabel(id))}</span>`).join("")}
       </div>
       <button type="button" class="icon-btn" data-modal-close aria-label="Zamknij okno projektu">${icons.close}</button>
     </div>
     <div class="modal-scroll">
       <h2 id="modal-title">${esc(project.title)}</h2>
       <p class="project-subtitle">${esc(project.subtitle)}</p>
+      ${project.flavor ? `<p class="modal-flavor">${esc(project.flavor)}</p>` : ""}
       ${galleryMarkup(project)}
       <div class="modal-columns">
         <div>
-          <h3>O projekcie</h3>
+          <h3>// O PROJEKCIE</h3>
           <p>${esc(project.description)}</p>
-          <h3>Co zostało zrobione</h3>
+          <h3>// CO ZOSTAŁO ZROBIONE</h3>
           <ul class="check-list">
             ${project.highlights.map((item) => `<li>${esc(item)}</li>`).join("")}
           </ul>
         </div>
         <aside>
-          <h3>Technologie</h3>
+          <h3>// TECHNOLOGIE</h3>
           <ul class="chip-list">
             ${project.tech.map((tech) => `<li><span class="chip">${esc(tech)}</span></li>`).join("")}
           </ul>
-          <h3>Linki</h3>
+          <h3>// KATEGORIE</h3>
+          <ul class="chip-list">
+            ${project.categories.map((id) => `<li><span class="chip">${esc(categoryLabel(id))}</span></li>`).join("")}
+          </ul>
+          <h3>// LINKI</h3>
           <div class="modal-links">${linkButtons(project, { size: "btn-block" })}</div>
         </aside>
       </div>
     </div>
     <div class="modal-nav">
-      <button type="button" class="btn btn-ghost btn-sm" data-modal-go="${esc(prev.id)}">${icons.arrowLeft}<span>${esc(prev.title)}</span></button>
-      <button type="button" class="btn btn-ghost btn-sm" data-modal-go="${esc(next.id)}"><span>${esc(next.title)}</span>${icons.arrowRight}</button>
+      <button type="button" class="btn btn-sm btn-ghost" data-modal-go="${esc(prev.id)}">${icons.arrowLeft}<span>${esc(prev.title)}</span></button>
+      <button type="button" class="btn btn-sm btn-ghost" data-modal-go="${esc(next.id)}"><span>${esc(next.title)}</span>${icons.arrowRight}</button>
     </div>
   `;
 }
@@ -205,14 +225,13 @@ function setHash(id) {
   history.replaceState(null, "", url);
 }
 
-function openProject(id, { fromHash = false } = {}) {
+export function openProject(id, { fromHash = false } = {}) {
   const project = projects.find((item) => item.id === id);
   const modal = $("[data-modal]");
   if (!project) return;
 
   const panel = $("[data-modal-panel]");
   panel.innerHTML = modalMarkup(project);
-  panel.scrollTop = 0;
   $(".modal-scroll", panel).scrollTop = 0;
   activeId = id;
 
@@ -220,6 +239,7 @@ function openProject(id, { fromHash = false } = {}) {
     opener = fromHash ? null : document.activeElement;
     modal.showModal();
     document.documentElement.classList.add("modal-open");
+    document.dispatchEvent(new CustomEvent("dialog:open"));
   }
   setHash(id);
 }
@@ -233,6 +253,7 @@ function onClosed() {
   document.documentElement.classList.remove("modal-open");
   activeId = null;
   setHash(null);
+  document.dispatchEvent(new CustomEvent("dialog:close"));
   if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
   opener = null;
 }

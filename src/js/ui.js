@@ -5,14 +5,16 @@ import { $, $$, prefersReducedMotion } from "./utils.js";
 export function initTheme() {
   const root = document.documentElement;
   const button = $("[data-theme-toggle]");
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
 
   const apply = (theme) => {
     root.setAttribute("data-theme", theme);
-    button.setAttribute("aria-label", theme === "dark" ? "Włącz jasny motyw" : "Włącz ciemny motyw");
+    button.setAttribute(
+      "aria-label",
+      theme === "dark" ? "Włącz jasny motyw (tryb treningowy)" : "Włącz ciemny motyw",
+    );
   };
 
-  apply(root.getAttribute("data-theme") ?? "light");
+  apply(root.getAttribute("data-theme") ?? "dark");
 
   button.addEventListener("click", () => {
     const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
@@ -22,16 +24,6 @@ export function initTheme() {
     } catch {
       /* tryb prywatny — preferencja nie zostanie zapamiętana */
     }
-  });
-
-  media.addEventListener("change", (event) => {
-    let stored = null;
-    try {
-      stored = localStorage.getItem("theme");
-    } catch {
-      /* ignoruj */
-    }
-    if (!stored) apply(event.matches ? "dark" : "light");
   });
 }
 

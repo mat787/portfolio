@@ -1,143 +1,225 @@
-import { contact, profile, projects, skillGroups, timeline, timelineFilters } from "../data/content.js";
-import { $, $$, asset, esc, icons, showToast, socialIcon } from "./utils.js";
+import {
+  abilities,
+  anomalyLog,
+  contact,
+  easter,
+  marquee,
+  profile,
+  projects,
+  skillGroups,
+  timeline,
+  timelineFilters,
+} from "../data/content.js";
+import { $, $$, esc, icons, showToast, socialIcon } from "./utils.js";
 
-const typeLabels = { work: "Doświadczenie", education: "Edukacja", community: "Działalność" };
+const visibleProjects = () => projects.filter((project) => !project.hidden);
+const typeLabels = { work: "Praca", education: "Edukacja", community: "Działalność" };
 
-export function renderHero() {
-  const root = $("[data-hero]");
-  const visibleProjects = projects.filter((project) => !project.hidden);
-  const topTech = ["Python", "SQL", "Scikit-learn", "PostgreSQL", "R"];
+const crosshairIcon =
+  '<svg class="kill-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v6M12 16v6M2 12h6M16 12h6"/><circle class="dot" cx="12" cy="12" r="1.8"/></svg>';
 
+const secTag = (number, label) => `<p class="sec-tag"><b>[${number}]</b> // ${esc(label)}</p>`;
+
+export function renderLiveBar() {
+  const root = $("[data-live-bar]");
+  const run = marquee.map((text) => `<span>${esc(text)}</span>`).join("");
   root.innerHTML = `
-    <div class="container hero-grid">
-      <div class="hero-copy">
-        <p class="status-pill" data-reveal>
-          <span class="status-dot" aria-hidden="true"></span>${esc(profile.availability)}
-        </p>
-        <h1 id="hero-title" data-reveal style="--i:1">
-          <span class="hero-name">${esc(profile.name)}</span>
-          <span class="hero-role">${esc(profile.role)}</span>
-        </h1>
-        <p class="hero-tagline" data-reveal style="--i:2">${esc(profile.tagline)}</p>
-        <p class="hero-intro" data-reveal style="--i:3">${esc(profile.intro)}</p>
-        <div class="hero-actions" data-reveal style="--i:4">
-          <a class="btn btn-primary" href="#projects">Zobacz projekty ${icons.arrowDown}</a>
-          <a class="btn btn-secondary" href="#contact">Skontaktuj się</a>
-          ${
-            profile.cvUrl
-              ? `<a class="btn btn-ghost" href="${esc(asset(profile.cvUrl))}" download>${icons.download} Pobierz CV</a>`
-              : ""
-          }
-        </div>
-        <ul class="hero-socials" data-reveal style="--i:5" aria-label="Profile online">
-          ${contact.links
-            .map(
-              (link) =>
-                `<li><a class="social-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer" aria-label="${esc(link.label)} (otwiera się w nowej karcie)">${socialIcon(link.label)}<span>${esc(link.label)}</span></a></li>`,
-            )
-            .join("")}
-          <li><a class="social-link" href="mailto:${esc(contact.email)}">${icons.mail}<span>E-mail</span></a></li>
-        </ul>
-      </div>
-
-      <div class="hero-visual" data-reveal style="--i:3" aria-hidden="true">
-        <div class="viz-card">
-          <div class="viz-head">
-            <span class="viz-dots"><i></i><i></i><i></i></span>
-            <span class="viz-title">analysis.ipynb</span>
-          </div>
-          <svg class="viz-chart" viewBox="0 0 360 170" preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="var(--accent)" stop-opacity=".28" />
-                <stop offset="1" stop-color="var(--accent)" stop-opacity="0" />
-              </linearGradient>
-            </defs>
-            <g class="viz-grid">
-              <path d="M0 34H360M0 85H360M0 136H360" />
-            </g>
-            <path class="viz-area" d="M0 130 C30 120 50 126 80 104 S130 96 160 76 S215 92 245 58 S310 44 360 22 V170 H0Z" fill="url(#areaFill)" />
-            <path class="viz-line" pathLength="1" d="M0 130 C30 120 50 126 80 104 S130 96 160 76 S215 92 245 58 S310 44 360 22" />
-            <circle class="viz-point" cx="245" cy="58" r="5" />
-          </svg>
-          <div class="viz-metrics">
-            <div><span>${visibleProjects.length}</span><small>projekty</small></div>
-            <div><span>${esc(profile.highlights[0].value)}</span><small>średnia</small></div>
-            <div><span>${esc(profile.highlights[1].value)}</span><small>danych w ETL</small></div>
-          </div>
-          <div class="viz-tags">${topTech.map((tech) => `<span>${esc(tech)}</span>`).join("")}</div>
-        </div>
-      </div>
-    </div>
-    <a class="scroll-hint" href="#about" aria-label="Przewiń do sekcji O mnie">${icons.arrowDown}</a>
+    <div class="live-tag"><i></i>LIVE</div>
+    <div class="live-track"><div class="live-run" data-live-run>${run}${run}${run}${run}</div></div>
   `;
 }
 
-export function renderAbout() {
+export function renderHero() {
+  const root = $("[data-hero]");
+  const [first, ...rest] = profile.name.split(" ");
+  const last = rest.join(" ");
+
+  root.innerHTML = `
+    <div class="container">
+      <div class="hero-bar" data-reveal>
+        <span class="hud-label hero-select">Agent select</span>
+        <span class="hud-label">Sezon 2026 · PL</span>
+      </div>
+
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="hud-label" data-reveal style="color:var(--accent-ink)">
+            AGENT: ${esc(profile.agentName)} // ROLA: ${esc(profile.agentRole)}
+          </p>
+          <h1 id="hero-title" class="glitch" data-reveal style="--i:1">
+            <span class="name-line" data-text="${esc(first)}">${esc(first)}</span>
+            <span class="name-line" data-text="${esc(last)}">${esc(last)}</span>
+          </h1>
+          <p class="hero-role" data-reveal style="--i:2">${esc(profile.role)} <span>· REDS S.A.</span></p>
+          <p class="hero-intro" data-reveal style="--i:3">${esc(profile.intro)}</p>
+          <p class="hero-looking" data-reveal style="--i:3"><b>▸</b> ${esc(profile.lookingFor)}</p>
+          <div class="hero-actions" data-reveal style="--i:4">
+            <a class="btn btn-primary" href="#projects">Zobacz projekty ${icons.arrowRight}</a>
+            <a class="btn" href="#contact">Wyślij invite</a>
+            ${
+              profile.cvUrl
+                ? `<a class="btn btn-ghost" href="${esc(profile.cvUrl)}" download>${icons.download} Pobierz CV</a>`
+                : ""
+            }
+          </div>
+        </div>
+
+        <aside class="agent-card frame" data-reveal style="--i:2" aria-label="Karta agenta">
+          <div class="agent-bar hud-label"><span>Agent 01 / 01</span><b>Selected</b></div>
+          <div class="agent-scope" aria-hidden="true">
+            <svg viewBox="0 0 200 200">
+              <circle class="ring" cx="100" cy="100" r="96" />
+              <circle class="ring ring-accent" cx="100" cy="100" r="80" />
+              <circle class="ring" cx="100" cy="100" r="58" />
+              <path class="tick" d="M100 0v14M100 186v14M0 100h14M186 100h14" />
+              <text x="100" y="121" text-anchor="middle">MD</text>
+              <circle class="ring" cx="150" cy="52" r="11" style="stroke:var(--alert)" />
+              <circle class="dot" cx="150" cy="52" r="3.5" />
+            </svg>
+          </div>
+          <dl class="agent-spec">
+            <div><dt>Rola</dt><dd>${esc(profile.agentRole)}</dd></div>
+            <div><dt>Klasa</dt><dd>Łowca anomalii</dd></div>
+            <div><dt>Baza</dt><dd>${esc(profile.location.split(",")[0])}</dd></div>
+            <div><dt>Status</dt><dd class="on">Open to work</dd></div>
+          </dl>
+        </aside>
+      </div>
+
+      <ul class="abilities" aria-label="Umiejętności agenta" data-reveal style="--i:3">
+        ${abilities
+          .map(
+            (ability) => `
+              <li class="ability frame ${ability.ult ? "ability-ult" : ""}" data-ability="${esc(ability.key)}">
+                <span class="ability-key" aria-hidden="true">${esc(ability.key)}</span>
+                <span class="ability-name">${esc(ability.name)}</span>
+                <span class="ability-note">${esc(ability.note)}</span>
+              </li>`,
+          )
+          .join("")}
+      </ul>
+    </div>
+  `;
+}
+
+export function renderAbout(onOpenProject) {
   const root = $("[data-about]");
   root.innerHTML = `
     <div class="container about-grid">
-      <div class="about-copy">
-        <div data-reveal>
-          <p class="eyebrow">O mnie</p>
-          <h2 id="about-title">Dane, które prowadzą do decyzji</h2>
-        </div>
-        ${profile.about.map((paragraph, index) => `<p data-reveal style="--i:${index + 1}">${esc(paragraph)}</p>`).join("")}
-        <p class="about-location" data-reveal>${icons.pin}<span>${esc(profile.location)}</span></p>
+      <div class="about-lead" data-reveal>
+        ${secTag("01", "Briefing")}
+        <h2 id="about-title"><em>${esc(profile.aboutLead)}</em></h2>
       </div>
-      <div class="about-side">
-        ${
-          profile.photo
-            ? `<img class="about-photo" data-reveal src="${esc(asset(profile.photo))}" alt="Portret: ${esc(profile.name)}" width="480" height="560" loading="lazy" decoding="async" />`
-            : ""
-        }
-        <ul class="stat-grid" aria-label="Najważniejsze liczby">
-          ${profile.highlights
+      <div class="about-text">
+        ${profile.about.map((paragraph, index) => `<p data-reveal style="--i:${index}">${esc(paragraph)}</p>`).join("")}
+        <div class="anomaly-log" role="list" aria-label="Dziennik anomalii">
+          ${anomalyLog
             .map(
-              (item, index) => `
-                <li class="stat" data-reveal style="--i:${index + 1}">
-                  <strong>${esc(item.value)}</strong>
-                  <span>${esc(item.label)}</span>
-                </li>`,
+              (entry, index) => `
+                <div class="anomaly" role="listitem" data-reveal style="--i:${index}">
+                  <span class="anomaly-code">${esc(entry.code)}</span>
+                  <p>${esc(entry.text)}</p>
+                  ${
+                    entry.project
+                      ? `<button type="button" data-open-project="${esc(entry.project)}">Otwórz</button>`
+                      : "<span></span>"
+                  }
+                </div>`,
             )
             .join("")}
-        </ul>
+        </div>
       </div>
+    </div>
+  `;
+
+  $$("[data-open-project]", root).forEach((button) =>
+    button.addEventListener("click", () => onOpenProject(button.dataset.openProject)),
+  );
+}
+
+export function renderProjectsShell() {
+  const root = $("[data-projects]");
+  root.innerHTML = `
+    <div class="container">
+      <div class="loadout-head" data-reveal>
+        <div>
+          ${secTag("02", "Projekty")}
+          <h2 id="projects-title">Loadout</h2>
+        </div>
+        <p class="lead">Wybierz kategorię albo kliknij kartę, żeby zobaczyć szczegóły i linki.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filtruj projekty" data-project-filters></div>
+      <p class="filter-status" role="status" aria-live="polite" data-filter-status></p>
+      <div class="project-grid" data-project-grid></div>
     </div>
   `;
 }
 
 export function renderSkills(onSkillSelect) {
   const root = $("[data-skills]");
-  const techCount = (skill) =>
-    projects.filter(
-      (project) => !project.hidden && project.tech.some((tech) => tech.toLowerCase() === skill.toLowerCase()),
-    ).length;
+  const projectsList = visibleProjects();
+
+  const info = (skill) => {
+    const key = skill.toLowerCase();
+    const inProjects = projectsList.filter((project) => project.tech.some((tech) => tech.toLowerCase() === key));
+    const inWork = timeline.filter((item) => item.tags?.some((tag) => tag.toLowerCase() === key));
+    const where = [...inProjects.map((project) => project.title), ...inWork.map((item) => item.org)];
+    return { count: inProjects.length, uses: inProjects.length + inWork.length, where };
+  };
+
+  const groups = skillGroups.map((group) => ({
+    ...group,
+    rows: group.items
+      .map((skill, order) => ({ skill, order, ...info(skill) }))
+      .sort((a, b) => b.uses - a.uses || a.order - b.order),
+  }));
+  const topCount = Math.max(...groups.flatMap((group) => group.rows.map((row) => row.uses)));
+  let rank = 0;
+  let mvpAssigned = false;
 
   root.innerHTML = `
     <div class="container">
-      <div class="section-head" data-reveal>
-        <p class="eyebrow">Umiejętności</p>
-        <h2 id="skills-title">Narzędzia i technologie</h2>
-        <p class="lead">Kliknij technologię, aby zobaczyć projekty, w których jej używałam.</p>
+      <div class="skills-head" data-reveal>
+        <div>
+          ${secTag("03", "Umiejętności")}
+          <h2 id="skills-title">Tabela wyników</h2>
+        </div>
+        <p class="lead">Kliknij umiejętność, żeby odfiltrować projekty, w których grała.</p>
       </div>
-      <div class="skill-grid">
-        ${skillGroups
+      <div class="scoreboard frame" role="table" aria-label="Umiejętności i projekty, w których były użyte" data-reveal>
+        <div class="sb-row sb-head" role="row">
+          <span role="columnheader">#</span>
+          <span role="columnheader">Umiejętność</span>
+          <span role="columnheader" class="sb-where">Gdzie</span>
+          <span role="columnheader" style="text-align:right">Użycie</span>
+        </div>
+        ${groups
           .map(
-            (group, index) => `
-              <article class="skill-card" data-reveal style="--i:${index}">
-                <h3>${esc(group.title)}</h3>
-                <ul class="chip-list">
-                  ${group.items
-                    .map((skill) => {
-                      const count = techCount(skill);
-                      return count
-                        ? `<li><button type="button" class="chip chip-action" data-skill="${esc(skill)}">${esc(skill)}<span class="chip-count" aria-hidden="true">${count}</span><span class="sr-only">— projekty: ${count}. Pokaż projekty</span></button></li>`
-                        : `<li><span class="chip">${esc(skill)}</span></li>`;
-                    })
-                    .join("")}
-                </ul>
-              </article>`,
+            (group) => `
+              <div role="rowgroup">
+                <div class="sb-row sb-team" role="row"><span role="cell"></span><span role="cell">Team // ${esc(group.title)}</span><span role="cell"></span><span role="cell"></span></div>
+                ${group.rows
+                  .map((row) => {
+                    rank += 1;
+                    const isMvp = !mvpAssigned && row.uses === topCount && row.uses > 0;
+                    if (isMvp) mvpAssigned = true;
+                    const pips = Array.from(
+                      { length: 5 },
+                      (_, index) => `<i class="${index < Math.min(row.uses, 5) ? "" : "off"}"></i>`,
+                    ).join("");
+                    const name = row.count
+                      ? `<button type="button" data-skill="${esc(row.skill)}">${esc(row.skill)}<span class="sr-only"> — projekty: ${row.count}. Pokaż projekty</span></button>`
+                      : esc(row.skill);
+                    return `
+                      <div class="sb-row is-skill ${row.count ? "is-link" : ""} ${isMvp ? "is-mvp" : ""}" role="row">
+                        <span role="cell" class="sb-rank">${String(rank).padStart(2, "0")}</span>
+                        <span role="cell" class="sb-name">${name}${isMvp ? '<span class="mvp-tag" aria-hidden="true">MVP</span>' : ""}</span>
+                        <span role="cell" class="sb-where">${row.where.length ? esc(row.where.join(" · ")) : "—"}</span>
+                        <span role="cell" class="sb-score"><span class="pips" aria-hidden="true">${pips}</span>${row.uses}</span>
+                      </div>`;
+                  })
+                  .join("")}
+              </div>`,
           )
           .join("")}
       </div>
@@ -152,35 +234,35 @@ export function renderSkills(onSkillSelect) {
 export function renderTimeline() {
   const root = $("[data-timeline]");
   root.innerHTML = `
-    <div class="container">
-      <div class="section-head" data-reveal>
-        <p class="eyebrow">Doświadczenie</p>
-        <h2 id="timeline-title">Praca, edukacja i działalność</h2>
+    <div class="container timeline-grid">
+      <div class="feed-side" data-reveal>
+        ${secTag("04", "Doświadczenie")}
+        <h2 id="timeline-title">Kill feed</h2>
+        <div class="filters" role="group" aria-label="Filtruj doświadczenie" data-timeline-filters>
+          ${timelineFilters
+            .map(
+              (filter, index) =>
+                `<button type="button" class="filter-chip" data-timeline-filter="${filter.id}" aria-pressed="${index === 0}">${esc(filter.label)}</button>`,
+            )
+            .join("")}
+        </div>
       </div>
-      <div class="filters" role="group" aria-label="Filtruj oś czasu" data-timeline-filters>
-        ${timelineFilters
-          .map(
-            (filter, index) =>
-              `<button type="button" class="filter-chip" data-timeline-filter="${filter.id}" aria-pressed="${index === 0}">${esc(filter.label)}</button>`,
-          )
-          .join("")}
-      </div>
-      <ol class="timeline">
+      <ol class="feed" aria-label="Doświadczenie i edukacja">
         ${timeline
           .map(
             (item, index) => `
-              <li class="timeline-item" data-type="${item.type}" data-reveal style="--i:${Math.min(index, 4)}">
-                <span class="timeline-icon" aria-hidden="true">${icons[item.type]}</span>
-                <div class="timeline-card">
-                  <div class="timeline-meta">
-                    <span class="badge badge-${item.type}">${typeLabels[item.type]}</span>
-                    <time>${esc(item.period)}</time>
-                  </div>
-                  <h3>${esc(item.title)} <span class="timeline-org">· ${esc(item.org)}</span></h3>
+              <li class="kill frame" data-type="${item.type}" data-reveal="feed" style="--i:${Math.min(index, 5)}">
+                <div class="kill-line">
+                  <span class="kill-who">${esc(profile.agentName)}</span>${crosshairIcon}
+                  <span class="kill-org">${esc(item.org)}</span>
+                  <span class="kill-role">${esc(item.title)}</span>
+                </div>
+                <div class="kill-body">
+                  <p class="kill-meta"><span>${esc(item.period)}</span><span class="kill-type">${typeLabels[item.type]}</span></p>
                   <p>${esc(item.description)}</p>
                   ${
                     item.tags?.length
-                      ? `<ul class="chip-list chip-list-sm">${item.tags.map((tag) => `<li><span class="chip">${esc(tag)}</span></li>`).join("")}</ul>`
+                      ? `<ul class="chip-list">${item.tags.map((tag) => `<li><span class="chip">${esc(tag)}</span></li>`).join("")}</ul>`
                       : ""
                   }
                 </div>
@@ -192,7 +274,7 @@ export function renderTimeline() {
   `;
 
   const buttons = $$("[data-timeline-filter]", root);
-  const items = $$(".timeline-item", root);
+  const items = $$(".kill", root);
   buttons.forEach((button) =>
     button.addEventListener("click", () => {
       const active = button.dataset.timelineFilter;
@@ -207,49 +289,62 @@ export function renderTimeline() {
 export function renderContact() {
   const root = $("[data-contact]");
   root.innerHTML = `
-    <div class="container contact-grid">
-      <div class="contact-copy" data-reveal>
-        <p class="eyebrow">Kontakt</p>
-        <h2 id="contact-title">${esc(contact.heading)}</h2>
+    <div class="container">
+      <div class="lobby-head" data-reveal>
+        ${secTag("05", "Kontakt")}
+        <h2 id="contact-title">Zaproś<br /><span>do party</span></h2>
         <p class="lead">${esc(contact.text)}</p>
-        <div class="contact-email">
-          <a class="email-link" href="mailto:${esc(contact.email)}">${icons.mail}<span>${esc(contact.email)}</span></a>
-          <button type="button" class="btn btn-ghost btn-sm" data-copy-email>${icons.copy} Kopiuj</button>
-        </div>
-        <ul class="contact-links">
-          ${contact.links
-            .map(
-              (link) =>
-                `<li><a class="contact-link" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${socialIcon(link.label)}<span><strong>${esc(link.label)}</strong><small>${esc(link.handle)}</small></span>${icons.external}</a></li>`,
-            )
-            .join("")}
-        </ul>
       </div>
 
-      <form class="contact-form" data-reveal style="--i:2" data-contact-form>
-        <h3>Napisz wiadomość</h3>
-        <label>
-          <span>Imię i nazwisko</span>
-          <input name="name" type="text" autocomplete="name" required />
-        </label>
-        <label>
-          <span>Twój e-mail</span>
-          <input name="from" type="email" autocomplete="email" required />
-        </label>
-        <label>
-          <span>Wiadomość</span>
-          <textarea name="message" rows="5" required></textarea>
-        </label>
-        <button class="btn btn-primary" type="submit">Otwórz w programie pocztowym ${icons.arrowRight}</button>
-        <p class="form-note">Formularz przygotuje wiadomość w Twoim programie pocztowym — dane nie są nigdzie wysyłane ani zapisywane.</p>
-      </form>
+      <ul class="party" aria-label="Skład party" data-reveal style="--i:1">
+        <li class="slot frame is-host"><span class="slot-note">Host · 1/5</span><span class="slot-name">${esc(profile.agentName)}<br />${esc(profile.agentRole)}</span></li>
+        <li class="slot frame is-you"><span class="slot-note">Slot 2 · czeka na Ciebie</span><span class="slot-name">Twoje miejsce</span></li>
+        <li class="slot frame is-empty"><span class="slot-note">Slot 3</span><span class="slot-name">wolne</span></li>
+        <li class="slot frame is-empty"><span class="slot-note">Slot 4</span><span class="slot-name">wolne</span></li>
+        <li class="slot frame is-empty"><span class="slot-note">Slot 5</span><span class="slot-name">wolne</span></li>
+      </ul>
+
+      <div class="lobby-grid">
+        <div data-reveal style="--i:1">
+          <div class="contact-email">
+            <a class="email-link" href="mailto:${esc(contact.email)}">${esc(contact.email)}</a>
+            <button type="button" class="btn btn-sm" data-copy-email>${icons.copy} Kopiuj</button>
+          </div>
+          <ul class="friends" aria-label="Znajomi">
+            ${contact.links
+              .map(
+                (link) =>
+                  `<li><a class="friend" href="${esc(link.url)}" target="_blank" rel="noopener noreferrer">${socialIcon(link.label)}<span class="friend-text"><strong>${esc(link.label)}</strong><small>${esc(link.handle)}</small></span>${icons.external}</a></li>`,
+              )
+              .join("")}
+          </ul>
+        </div>
+
+        <form class="contact-form frame" data-reveal style="--i:2" data-contact-form>
+          <h3>Wyślij invite</h3>
+          <label>
+            <span>Imię i nazwisko</span>
+            <input name="name" type="text" autocomplete="name" required />
+          </label>
+          <label>
+            <span>Twój e-mail</span>
+            <input name="from" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            <span>Wiadomość</span>
+            <textarea name="message" rows="5" required placeholder="Napisz coś, nie bądź NPC."></textarea>
+          </label>
+          <button class="btn btn-primary" type="submit">Wyślij invite ${icons.arrowRight}</button>
+          <p class="form-note">Formularz przygotuje wiadomość w Twoim programie pocztowym. Dane nie są nigdzie wysyłane ani zapisywane.</p>
+        </form>
+      </div>
     </div>
   `;
 
   $("[data-copy-email]", root).addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(contact.email);
-      showToast("Skopiowano adres e-mail");
+      showToast("Skopiowano adres e-mail. W");
     } catch {
       showToast(contact.email);
     }
@@ -261,6 +356,7 @@ export function renderContact() {
     const subject = `Wiadomość z portfolio — ${data.get("name")}`;
     const body = `${data.get("message")}\n\n—\n${data.get("name")}\n${data.get("from")}`;
     window.location.href = `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    showToast("Invite gotowy. Dokończ w programie pocztowym");
   });
 }
 
@@ -268,7 +364,7 @@ export function renderFooter() {
   const root = $("[data-footer]");
   root.innerHTML = `
     <div class="container footer-inner">
-      <p>© ${new Date().getFullYear()} ${esc(profile.name)}</p>
+      <p>gg wp · © ${new Date().getFullYear()} ${esc(profile.name)}</p>
       <ul class="footer-links">
         ${contact.links
           .map(
@@ -282,3 +378,5 @@ export function renderFooter() {
     </div>
   `;
 }
+
+export const emptyFilterText = easter.emptyFilter;

@@ -1,29 +1,32 @@
 <!doctype html>
-<html lang="pl" data-theme="light">
+<html lang="pl" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Matylda Drapich — Data Analyst / Machine Learning</title>
+    <title>Matylda Drapich — Data / ML</title>
     <meta
       name="description"
-      content="Portfolio Matyldy Drapich — studentki informatyki stosowanej na Politechnice Warszawskiej i Junior Data Analyst. Projekty z obszaru analizy danych, ML i inżynierii danych."
+      content="Matylda Drapich — Junior Data Analyst, studentka informatyki stosowanej na Politechnice Warszawskiej. Wykrywanie anomalii w danych zdrowotnych, kolejowych i na zdjęciach roślin. Szukam stażu / roli junior Data / ML w Warszawie."
     />
     <meta name="author" content="Matylda Drapich" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="pl_PL" />
-    <meta property="og:title" content="Matylda Drapich — Data Analyst / Machine Learning" />
+    <meta property="og:title" content="Matylda Drapich — Data / ML" />
     <meta
       property="og:description"
-      content="Projekty z obszaru analizy danych, uczenia maszynowego i inżynierii danych."
+      content="Wykrywanie anomalii: dane zdrowotne, dane kolejowe, choroby roślin. Mbewu AI — Top 7 BCG Platinion Hackathon 2026."
     />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0b1020" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b0d0f" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#e6e9eb" media="(prefers-color-scheme: light)" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
     <style>
       html.pre main,
       html.pre footer {
         visibility: hidden;
+      }
+      html[data-theme="dark"] body {
+        background: #0b0d0f;
       }
     </style>
     <script>
@@ -31,12 +34,7 @@
       (function () {
         try {
           var stored = localStorage.getItem("theme");
-          var theme =
-            stored === "dark" || stored === "light"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light";
+          var theme = stored === "light" ? "light" : "dark";
           document.documentElement.setAttribute("data-theme", theme);
         } catch (e) {}
       })();
@@ -46,19 +44,23 @@
     <a class="skip-link" href="#main">Przejdź do treści</a>
 
     <header class="site-header" data-header>
+      <div class="live-bar" aria-hidden="true" data-live-bar></div>
       <div class="container header-inner">
-        <a class="brand" href="#top">
-          <span class="brand-mark" aria-hidden="true">MD</span>
-          <span class="brand-name">Matylda Drapich</span>
+        <a class="brand" href="#top" data-brand>
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M16 2v8M16 22v8M2 16h8M22 16h8" />
+            <circle cx="16" cy="16" r="1.6" class="dot" />
+          </svg>
+          <span class="brand-name">Matylda <span>Drapich</span></span>
         </a>
 
         <nav class="main-nav" id="main-nav" aria-label="Główna nawigacja" data-nav>
           <ul>
-            <li><a href="#about" data-nav-link="about">O mnie</a></li>
-            <li><a href="#projects" data-nav-link="projects">Projekty</a></li>
-            <li><a href="#skills" data-nav-link="skills">Umiejętności</a></li>
-            <li><a href="#timeline" data-nav-link="timeline">Doświadczenie</a></li>
-            <li><a href="#contact" data-nav-link="contact">Kontakt</a></li>
+            <li><a href="#about" data-nav-link="about"><i>01</i>O mnie</a></li>
+            <li><a href="#projects" data-nav-link="projects"><i>02</i>Projekty</a></li>
+            <li><a href="#skills" data-nav-link="skills"><i>03</i>Umiejętności</a></li>
+            <li><a href="#timeline" data-nav-link="timeline"><i>04</i>Doświadczenie</a></li>
+            <li><a href="#contact" data-nav-link="contact"><i>05</i>Kontakt</a></li>
           </ul>
         </nav>
 
@@ -66,8 +68,25 @@
           <button
             class="icon-btn"
             type="button"
+            data-sound-toggle
+            aria-pressed="true"
+            aria-label="Dźwięk trafienia: włączony"
+            title="Dźwięk trafienia"
+          >
+            <svg class="icon icon-sound-on" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+              <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.500 8.500 0 0 1 0 12" />
+            </svg>
+            <svg class="icon icon-sound-off" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 9v6h4l5 4V5L8 9H4Z" />
+              <path d="m17 9 5 6m0-6-5 6" />
+            </svg>
+          </button>
+          <button
+            class="icon-btn"
+            type="button"
             data-theme-toggle
-            aria-label="Przełącz motyw jasny / ciemny"
+            aria-label="Przełącz motyw"
             title="Przełącz motyw"
           >
             <svg class="icon icon-moon" viewBox="0 0 24 24" aria-hidden="true">
@@ -108,36 +127,24 @@
       </noscript>
 
       <section class="hero" id="top" aria-labelledby="hero-title" data-hero></section>
-
-      <section class="section" id="about" aria-labelledby="about-title" data-about></section>
-
-      <section class="section section-alt" id="projects" aria-labelledby="projects-title">
-        <div class="container">
-          <div class="section-head" data-reveal>
-            <p class="eyebrow">Projekty</p>
-            <h2 id="projects-title">Wybrane projekty</h2>
-            <p class="lead">
-              Filtruj według obszaru, a po kliknięciu w kartę zobaczysz szczegóły, stos technologiczny i linki.
-            </p>
-          </div>
-          <div class="filters" role="group" aria-label="Filtruj projekty" data-project-filters></div>
-          <p class="filter-status" role="status" aria-live="polite" data-filter-status></p>
-          <div class="project-grid" data-project-grid></div>
-        </div>
-      </section>
-
-      <section class="section" id="skills" aria-labelledby="skills-title" data-skills></section>
-
-      <section class="section section-alt" id="timeline" aria-labelledby="timeline-title" data-timeline></section>
-
-      <section class="section" id="contact" aria-labelledby="contact-title" data-contact></section>
+      <section class="section s-about" id="about" aria-labelledby="about-title" data-about></section>
+      <section class="section s-projects" id="projects" aria-labelledby="projects-title" data-projects></section>
+      <section class="section s-skills" id="skills" aria-labelledby="skills-title" data-skills></section>
+      <section class="section s-timeline" id="timeline" aria-labelledby="timeline-title" data-timeline></section>
+      <section class="section s-contact" id="contact" aria-labelledby="contact-title" data-contact></section>
     </main>
 
     <footer class="site-footer" data-footer></footer>
 
-    <dialog class="project-modal" data-modal aria-labelledby="modal-title">
+    <div class="aura-hud" data-aura hidden aria-live="off">
+      <span>AURA</span><strong data-aura-value>0</strong>
+    </div>
+
+    <dialog class="project-modal frame" data-modal aria-labelledby="modal-title">
       <div class="modal-panel" data-modal-panel></div>
     </dialog>
+
+    <dialog class="aim-dialog frame" data-aim aria-labelledby="aim-title"></dialog>
 
     <div class="toast" role="status" aria-live="polite" data-toast></div>
 
