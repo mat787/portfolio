@@ -22,7 +22,7 @@ Wszystko jest narysowane w SVG/CSS lub syntezowane w przeglądarce — żadnych 
 
 ## Jak edytować treść
 
-**Cała treść jest w jednym pliku: [`src/data/content.js`](./src/data/content.js)** — opis, rrola, projekty,
+**Cała treść jest w jednym pliku: [`src/data/content.js`](./src/data/content.js)** — opis, umiejętności, projekty,
 umiejętności, oś czasu, dane kontaktowe i projekty. Na początku pliku jest krótka ściągawka.
 
 | Chcę… | Zmieniam… |
